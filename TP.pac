@@ -399,7 +399,7 @@ zona:!accessing!private! !
 
 !Usuario class methodsFor!
 
-createUser: unaClave nombre: unNombre domicilio: unDomicilio zona: unaZona
+createUserWithKey: unaClave nombre: unNombre domicilio: unDomicilio zona: unaZona
 
 	| usuario |
 
@@ -424,7 +424,7 @@ mostrarCodigo
 	^Codigo.! !
 
 !Usuario class categoriesForMethods!
-createUser:nombre:domicilio:zona:!private! !
+createUserWithKey:nombre:domicilio:zona:!private! !
 inicializar!public! !
 initialize!private! !
 mostrarCodigo!public! !
