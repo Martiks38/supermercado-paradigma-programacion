@@ -24,6 +24,7 @@ package globalAliases: (Set new
 package setPrerequisites: #(
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Integer Prompter'
+	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Prompter').
 
 package!
@@ -103,12 +104,41 @@ cargarDatos: unCodigo precio: unPrecio descripcion: unaDescripcion
 	precio:= unPrecio.
 	descripcion:= unaDescripcion.!
 
+codigo: unCodigo
+	codigo := unCodigo!
+
+descripcion: unaDescripcion
+	descripcion := unaDescripcion!
+
 getPrice
-	^precio! !
+	^precio!
+
+precio: unPrecio
+	precio := unPrecio! !
 
 !Articulo categoriesForMethods!
 cargarDatos:precio:descripcion:!public! !
+codigo:!accessing!public! !
+descripcion:!accessing!public! !
 getPrice!private! !
+precio:!accessing!public! !
+!
+
+!Articulo class methodsFor!
+
+createArticleWithCode: unCodigo precio: unPrecio descripcion: unaDescripcion
+
+	| articulo |
+
+	articulo := self new.
+	articulo precio: unPrecio.
+	articulo codigo: unCodigo.
+	articulo descripcion: unaDescripcion.
+
+	^articulo.! !
+
+!Articulo class categoriesForMethods!
+createArticleWithCode:precio:descripcion:!private! !
 !
 
 ArticuloCantidad guid: (GUID fromString: '{deaf4749-c169-40ff-bd3e-269d6ac531dc}')!
@@ -119,32 +149,28 @@ ArticuloCantidad comment: ''!
 
 !ArticuloCantidad methodsFor!
 
-articulo!
+articulo
+	^articulo!
 
 articulo: unArticulo
 	articulo := unArticulo!
 
-cantidad!
+cantidad
+	^cantidad!
 
 cantidad: unaCantidad
-	cantidad := unaCantidad!
-
-cargarDatos!
-
-verificarCantidad! !
+	cantidad := unaCantidad! !
 
 !ArticuloCantidad categoriesForMethods!
-articulo!public! !
+articulo!private! !
 articulo:!accessing!private! !
-cantidad!public! !
+cantidad!private! !
 cantidad:!accessing!private! !
-cargarDatos!public! !
-verificarCantidad!public! !
 !
 
 !ArticuloCantidad class methodsFor!
 
-createItem: unArticulo cantidad: unaCantidad
+createWithArticle: unArticulo cantidad: unaCantidad
 	
 	| item |
 	
@@ -155,10 +181,14 @@ createItem: unArticulo cantidad: unaCantidad
 	
 	^item.
 	
-	! !
+	!
+
+verificarCantidad: unaCantidad
+	^unaCantidad > 0! !
 
 !ArticuloCantidad class categoriesForMethods!
-createItem:cantidad:!private! !
+createWithArticle:cantidad:!private! !
+verificarCantidad:!private! !
 !
 
 Distribuidor guid: (GUID fromString: '{428bb17d-965a-49e5-b076-f037fbacd32b}')!
@@ -169,15 +199,59 @@ Distribuidor comment: ''!
 
 !Distribuidor methodsFor!
 
-asignarVenta!
+asignarVenta: unaVenta
+	ventas add: unaVenta.!
 
-cargarDatos:unCodigo nombre:unNombre  comision:unComision zona:unaZona 
+cargarDatos: unCodigo nombre:unNombre  comision:unComision zona: unaZona 
 
-ventas:= OrderedCollection new! !
+	ventas:= OrderedCollection new!
+
+codigo: unCodigo
+	codigo := unCodigo.!
+
+comision: unaComision
+	comision := unaComision.!
+
+nombre: unNombre
+	nombre := unNombre.!
+
+ventas: listaVentas
+	ventas := listaVentas.
+	!
+
+zona: unaZona
+	zona := unaZona.! !
 
 !Distribuidor categoriesForMethods!
-asignarVenta!public! !
+asignarVenta:!private! !
 cargarDatos:nombre:comision:zona:!public! !
+codigo:!accessing!private! !
+comision:!accessing!private! !
+nombre:!accessing!private! !
+ventas:!private! !
+zona:!accessing!private! !
+!
+
+!Distribuidor class methodsFor!
+
+createDistribuitor: unCodigo nombre: unNombre comision: unaComision zona: unaZona
+
+	| distribuidor |
+	
+	distribuidor := self new.
+	distribuidor codigo: unCodigo.
+	distribuidor zona: unaZona.
+	distribuidor nombre: unNombre.
+	distribuidor comision: unaComision.
+	distribuidor ventas: OrderedCollection new.
+
+	^distribuidor
+
+	
+	! !
+
+!Distribuidor class categoriesForMethods!
+createDistribuitor:nombre:comision:zona:!private! !
 !
 
 Supermercado guid: (GUID fromString: '{563120bc-a98d-411e-a648-4dfa26e58384}')!
@@ -187,6 +261,12 @@ Supermercado comment: ''!
 !Supermercado categoriesForClass!Kernel-Objects! !
 
 !Supermercado methodsFor!
+
+addDistributor
+
+	| distribuidor |
+
+	!
 
 addZone	
 	zonas add: Zona createZone.!
@@ -257,6 +337,7 @@ validateZone: unaZona
 	^zonas includes: unaZona.! !
 
 !Supermercado categoriesForMethods!
+addDistributor!private! !
 addZone!private! !
 altaArticulo!public! !
 altaDistribuidor!public! !
@@ -357,25 +438,53 @@ Venta comment: ''!
 
 !Venta methodsFor!
 
-agregarArticuloCantidad!
+agregarArticuloCantidad: unArticulo cantidad: unaCantidad
 
-calcularTotal!
+	| item |
+	item := ArticuloCantidad createWithArticle: unArticulo cantidad: unaCantidad.
+	articulosCantidad add: item.!
 
-distribuidor: anObject
-	distribuidor := anObject!
+articulosCantidad: listaItems
+	articulosCantidad := listaItems!
 
-fecha: anObject
-	fecha := anObject!
+calcularTotal
+	^articulosCantidad inject: 0 into: [:acc :cur | cur articulo getPrice * cur cantidad ]!
 
-usuario: anObject
-	usuario := anObject! !
+distribuidor: unDistribuidor
+	distribuidor := unDistribuidor!
+
+fecha: unaFecha
+	fecha := unaFecha!
+
+usuario: unUsuario
+	usuario := unUsuario! !
 
 !Venta categoriesForMethods!
-agregarArticuloCantidad!public! !
-calcularTotal!public! !
+agregarArticuloCantidad:cantidad:!private! !
+articulosCantidad:!accessing!private! !
+calcularTotal!private! !
 distribuidor:!accessing!public! !
-fecha:!accessing!public! !
+fecha:!accessing!private! !
 usuario:!accessing!public! !
+!
+
+!Venta class methodsFor!
+
+createSaleWithCode: unCodigo usuario: unUsuario distribuidor: unDistribuidor
+	
+	| venta |
+
+	venta := self new.
+	venta codigo: unCodigo.
+	venta usuario: unUsuario.
+	venta distribuidor: unDistribuidor.
+	venta articulosCantidad: OrderedCollection new.
+	venta fecha: Date today.
+
+	^venta.! !
+
+!Venta class categoriesForMethods!
+createSaleWithCode:usuario:distribuidor:!private! !
 !
 
 Zona guid: (GUID fromString: '{7cb4607d-b831-49fd-a126-18843f49e39b}')!
@@ -437,29 +546,47 @@ cargarDatos: unCodigo precio: unPrecio descripcion: unaDescripcion peso: unPeso
 	peso:= unPeso.!
 
 getPrice
-	^precio + Porcentaje * peso! !
+	"Correción de error de punto flotante"
+	^((precio + ( Porcentaje * peso )) * 100 ) rounded / 100 asFloat!
+
+peso: unPeso
+	peso := unPeso! !
 
 !ArticuloFrio categoriesForMethods!
 cargarDatos:precio:descripcion:peso:!public! !
 getPrice!private! !
+peso:!accessing!private! !
 !
 
 !ArticuloFrio class methodsFor!
+
+createArticleWithCode: unCodigo precio: unPrecio descripcion: unaDescripcion peso: unPeso
+	
+	| articulo |
+	
+	articulo := super createArticleWithCode: unCodigo precio: unPrecio descripcion: unaDescripcion.
+	articulo peso: unPeso.
+	
+	^articulo!
 
 inicializar
 	Porcentaje := (Prompter prompt: 'Ingrese su porcentaje para todos sus articulos frios' ) asNumber.!
 
 initialize
-	Porcentaje := ( Prompter prompt: 'Ingrese el porcentaje de incremento de los productos fríos' ) asNumber.!
+	[
+		Porcentaje := ( Prompter prompt: 'Ingrese el porcentaje de incremento de los productos fríos' ) asNumber.
+		Porcentaje < 0.
+	] whileTrue.
+	!
 
-Porcentaje
-
-^Porcentaje.! !
+porcentaje
+	^Porcentaje.! !
 
 !ArticuloFrio class categoriesForMethods!
+createArticleWithCode:precio:descripcion:peso:!private! !
 inicializar!public! !
 initialize!private! !
-Porcentaje!public! !
+porcentaje!private! !
 !
 
 "Binary Globals"!
