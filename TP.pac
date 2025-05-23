@@ -9,10 +9,11 @@ package classNames
 	add: #ArticuloComun;
 	add: #ArticuloFrio;
 	add: #Distribuidor;
+	add: #Fabrica;
+	add: #FabricaArticulo;
 	add: #Supermercado;
 	add: #Usuario;
 	add: #Venta;
-	add: #Zona;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -23,6 +24,7 @@ package globalAliases: (Set new
 
 package setPrerequisites: #(
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Choice Prompter'
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Integer Prompter'
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Prompter').
@@ -49,6 +51,12 @@ Object subclass: #Distribuidor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
+Object subclass: #Fabrica
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
 Object subclass: #Supermercado
 	instanceVariableNames: 'distribuidores ventas usuarios articulos zonas'
 	classVariableNames: ''
@@ -67,12 +75,6 @@ Object subclass: #Venta
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
-Object subclass: #Zona
-	instanceVariableNames: 'distribuidor id'
-	classVariableNames: 'Id'
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
 Articulo subclass: #ArticuloComun
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -82,6 +84,12 @@ Articulo subclass: #ArticuloComun
 Articulo subclass: #ArticuloFrio
 	instanceVariableNames: 'peso'
 	classVariableNames: 'Porcentaje'
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+Fabrica subclass: #FabricaArticulo
+	instanceVariableNames: ''
+	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
@@ -104,6 +112,9 @@ cargarDatos: unCodigo precio: unPrecio descripcion: unaDescripcion
 	precio:= unPrecio.
 	descripcion:= unaDescripcion.!
 
+codigo
+	^codigo!
+
 codigo: unCodigo
 	codigo := unCodigo!
 
@@ -118,6 +129,7 @@ precio: unPrecio
 
 !Articulo categoriesForMethods!
 cargarDatos:precio:descripcion:!public! !
+codigo!public! !
 codigo:!accessing!public! !
 descripcion:!accessing!public! !
 getPrice!private! !
@@ -243,7 +255,6 @@ createDistribuitor: unCodigo nombre: unNombre comision: unaComision zona: unaZon
 	distribuidor zona: unaZona.
 	distribuidor nombre: unNombre.
 	distribuidor comision: unaComision.
-	distribuidor ventas: OrderedCollection new.
 
 	^distribuidor
 
@@ -252,6 +263,25 @@ createDistribuitor: unCodigo nombre: unNombre comision: unaComision zona: unaZon
 
 !Distribuidor class categoriesForMethods!
 createDistribuitor:nombre:comision:zona:!private! !
+!
+
+Fabrica guid: (GUID fromString: '{eaf090bb-4d89-47d1-9a04-78717e80d8aa}')!
+
+Fabrica comment: ''!
+
+!Fabrica categoriesForClass!Ejercicio1! !
+
+!Fabrica methodsFor!
+
+crearArticuloComunConCodigo: unCodigo descripcion: unaDescripcion precio: unPrecio
+	^'Crear Artículo Común'!
+
+crearArticuloFrioConCodigo: unCodigo descripcion: unaDescripcion precio: unPrecio peso: unPeso
+	^'Crear Artículo Frío'.! !
+
+!Fabrica categoriesForMethods!
+crearArticuloComunConCodigo:descripcion:precio:!public! !
+crearArticuloFrioConCodigo:descripcion:precio:peso:!public! !
 !
 
 Supermercado guid: (GUID fromString: '{563120bc-a98d-411e-a648-4dfa26e58384}')!
@@ -268,43 +298,53 @@ addDistributor
 
 	!
 
-addZone	
-	zonas add: Zona createZone.!
+autenticarUsuario
 
-altaArticulo
-|codigo precio descripcion esFrio peso articulo|
-"
-codigo:=Prompter prompt:'ingrese codigo'.
-precio:= Prompter prompt:'ingrese precio'.
-descripcion:= Prompter prompt:'ingrese descripcion'.
+	| estaAutenticado existeUsuario nombre clave |
+	
+	estaAutenticado := false.
+	existeUsuario := false.
 
-esFrio:= Prompter prompt:'Ingrese s-frio n-comun'.
-(esFrio = 's') ifTrue:[
-	peso:= Prompter prompt:'ingrese peso'.
-	articulo:= ArticuloFrio new.
-	articulo cargarDatos: codigo precio: precio descripcion: descripcion peso: peso.
-] ifFalse:[
-	articulo:= ArticuloComun new.
-	articulo cargarDatos: codigo precio: precio descripcion: descripcion.
-].
+	[ estaAutenticado | existeUsuario ] whileFalse: [
+		nombre := Prompter prompt: 'Ingrese su nombre de usuario'.
+		existeUsuario :=usuarios anySatisfy: [ :u | u nombre = nombre ].
+		"existeUsuario ifFalse: [ self registerUserWithName: nombre ].		"
+	].
 
-articulos add:articulo.
-"
-
-
-!
-
-altaDistribuidor!
-
-altaUsuario!
-
-altaVenta!
-
-autenticarse!
+	^nombre.!
 
 buscarDistribuidor!
 
-crearZona!
+buscarDistribuidorConCodigo: unCodigo
+	^distribuidores detect: [:d | d codigo = unCodigo ]!
+
+crearArticulos: unaFabrica
+	
+	| unCodigo unaDescripcion unPrecio unPeso tipoArticulo articulo |
+
+	[
+		tipoArticulo := ChoicePrompter choices: #('Artículo Común' 'Artícullo Frío').
+		tipoArticulo ~= 'C' and: [ tipoArticulo ~= 'F' ].
+	] whileTrue.
+
+	[
+		unCodigo := Prompter prompt: 'Ingrese el código del artículo'.
+		articulos anySatisfy: [:a | a codigo = unCodigo ].
+	] whileTrue.
+
+	unaDescripcion := Prompter prompt: 'Ingrese una descripción del artículo'.
+	unPrecio := Prompter prompt: 'Ingrese el precio del artículo' asNumber.
+
+	(tipoArticulo = 'C')
+		ifTrue: [
+				articulo := unaFabrica crearArticuloComunConCodigo: unCodigo descripcion: unaDescripcion precio: unPrecio.
+			]
+		ifFalse: [
+				unPeso := Prompter prompt: 'Ingrese el peso del artículo' asNumber.
+				articulo := unaFabrica crearArticuloFrioConCodigo: unCodigo descripcion: unaDescripcion precio: unPrecio peso: unPeso.
+			].
+
+	^articulo!
 
 initialize
 	
@@ -312,43 +352,63 @@ initialize
 	usuarios := OrderedCollection new.
 	ventas := OrderedCollection new.
 	articulos := OrderedCollection new.
-	zonas := OrderedCollection new.
 
 	Usuario initialize.
-	Zona initialize.
+	Articulo initialize.
 	ArticuloFrio initialize.!
+
+menuPrincipal
+
+	| estaAutenticado finalizar userCode |
+
+	userCode := nil.
+	finalizar := false.
+	estaAutenticado := false.
+
+	Transcript show: 'Supermercado'; cr.
+
+	[
+		estaAutenticado ifFalse: [
+			userCode := self autenticarUsuario.
+			estaAutenticado := true.
+		].
+
+		Transcript show: '1. Realizar venta'; cr.
+		Transcript show: ''; cr.
+		Transcript show: '0. Salir'; cr.
+
+		
+
+		finalizar.
+	] whileFalse.!
 
 registerUser
 	| unaClave unNombre unDomicilio unaZona user |
 
 	unNombre := Prompter prompt: 'Ingrese el nombre del nuevo usuario'.
-	unaClave := Prompter prompt: 'Ingrese la clave'. "Supongo que las claves serán únicas y siempre se ingresarán correctamente"
+	[
+		unaClave := Prompter prompt: 'Ingrese la clave única asignada'.
+		usuarios anySatisfy: [:u | u clave = unaClave ]
+	] whileTrue.
+	[
+		unaZona := IntegerPrompter prompt: 'Ingrese el número de zona'.
+		unaZona <= 0.
+	] whileTrue.
 	unDomicilio := Prompter prompt: 'Ingrese el domicilio'.
-	[ 
-		unaZona := IntegerPrompter prompt: 'Ingrese el código de la zona'.
-		self validateZone: unaZona.
-	] whileFalse.
 	
-	user := Usuario createUser: unaClave nombre: unNombre domicilio: unDomicilio zona: unaZona.
+	user := Usuario createUserWithKey: unaClave nombre: unNombre domicilio: unDomicilio zona: unaZona.
 	
-	usuarios add: user.!
-
-validateZone: unaZona
-	^zonas includes: unaZona.! !
+	usuarios add: user.! !
 
 !Supermercado categoriesForMethods!
 addDistributor!private! !
-addZone!private! !
-altaArticulo!public! !
-altaDistribuidor!public! !
-altaUsuario!public! !
-altaVenta!public! !
-autenticarse!public! !
+autenticarUsuario!public! !
 buscarDistribuidor!public! !
-crearZona!public! !
+buscarDistribuidorConCodigo:!public! !
+crearArticulos:!public! !
 initialize!private! !
-registerUser!private! !
-validateZone:!private! !
+menuPrincipal!public! !
+registerUser!public! !
 !
 
 !Supermercado class methodsFor!
@@ -367,6 +427,9 @@ Usuario comment: ''!
 !Usuario categoriesForClass!Kernel-Objects! !
 
 !Usuario methodsFor!
+
+clave
+	^clave!
 
 clave: unaClave
 	clave := unaClave!
@@ -388,6 +451,7 @@ zona: unaZona
 	zona := unaZona! !
 
 !Usuario categoriesForMethods!
+clave!public! !
 clave:!accessing!private! !
 codigoUsuario:!accessing!private! !
 domicilio!public! !
@@ -403,6 +467,7 @@ createUserWithKey: unaClave nombre: unNombre domicilio: unDomicilio zona: unaZon
 
 	| usuario |
 
+	[ Codigo isNil ] ifTrue: [ Codigo := 0 ].
 	Codigo := Codigo + 1.
 	
 	usuario := self new.
@@ -414,9 +479,6 @@ createUserWithKey: unaClave nombre: unNombre domicilio: unDomicilio zona: unaZon
 
 	^usuario.!
 
-inicializar
-Codigo := 0.!
-
 initialize
 	Codigo := 0.!
 
@@ -425,7 +487,6 @@ mostrarCodigo
 
 !Usuario class categoriesForMethods!
 createUserWithKey:nombre:domicilio:zona:!private! !
-inicializar!public! !
 initialize!private! !
 mostrarCodigo!public! !
 !
@@ -447,8 +508,17 @@ agregarArticuloCantidad: unArticulo cantidad: unaCantidad
 articulosCantidad: listaItems
 	articulosCantidad := listaItems!
 
+autenticarUsuarioConCodigo: unCodigo clave: unaClave
+	!
+
 calcularTotal
-	^articulosCantidad inject: 0 into: [:acc :cur | cur articulo getPrice * cur cantidad ]!
+
+	| total |
+	
+	total := 0.
+	articulosCantidad do: [ :item | total := total + item articulo getPrice * item cantidad ].
+	
+	^total!
 
 distribuidor: unDistribuidor
 	distribuidor := unDistribuidor!
@@ -462,6 +532,7 @@ usuario: unUsuario
 !Venta categoriesForMethods!
 agregarArticuloCantidad:cantidad:!private! !
 articulosCantidad:!accessing!private! !
+autenticarUsuarioConCodigo:clave:!public! !
 calcularTotal!private! !
 distribuidor:!accessing!public! !
 fecha:!accessing!private! !
@@ -487,45 +558,6 @@ createSaleWithCode: unCodigo usuario: unUsuario distribuidor: unDistribuidor
 createSaleWithCode:usuario:distribuidor:!private! !
 !
 
-Zona guid: (GUID fromString: '{7cb4607d-b831-49fd-a126-18843f49e39b}')!
-
-Zona comment: ''!
-
-!Zona categoriesForClass!Kernel-Objects! !
-
-!Zona methodsFor!
-
-distribuidor: unDistribuidor
-	distribuidor := unDistribuidor.!
-
-id: unId
-	id := unId.! !
-
-!Zona categoriesForMethods!
-distribuidor:!private! !
-id:!private! !
-!
-
-!Zona class methodsFor!
-
-createZone
-	| zone |
-
-	Id := Id + 1.
-
-	zone := self new.
-	zone id: Id.
-
-	^zone.!
-
-initialize
-	Id := 0.! !
-
-!Zona class categoriesForMethods!
-createZone!private! !
-initialize!private! !
-!
-
 ArticuloComun guid: (GUID fromString: '{e603849e-bdc4-4b99-8e6b-bd43e0036bf7}')!
 
 ArticuloComun comment: ''!
@@ -540,11 +572,6 @@ ArticuloFrio comment: ''!
 
 !ArticuloFrio methodsFor!
 
-cargarDatos: unCodigo precio: unPrecio descripcion: unaDescripcion peso: unPeso
-	super cargarDatos: unCodigo precio: unPrecio descripcion: unaDescripcion.
-
-	peso:= unPeso.!
-
 getPrice
 	"Correción de error de punto flotante"
 	^((precio + ( Porcentaje * peso )) * 100 ) rounded / 100 asFloat!
@@ -553,7 +580,6 @@ peso: unPeso
 	peso := unPeso! !
 
 !ArticuloFrio categoriesForMethods!
-cargarDatos:precio:descripcion:peso:!public! !
 getPrice!private! !
 peso:!accessing!private! !
 !
@@ -587,6 +613,25 @@ createArticleWithCode:precio:descripcion:peso:!private! !
 inicializar!public! !
 initialize!private! !
 porcentaje!private! !
+!
+
+FabricaArticulo guid: (GUID fromString: '{7f0efa47-ad45-4054-abe6-61050e0aac95}')!
+
+FabricaArticulo comment: ''!
+
+!FabricaArticulo categoriesForClass!Ejercicio1! !
+
+!FabricaArticulo methodsFor!
+
+crearArticuloComunConCodigo: unCodigo descripcion: unaDescripcion precio: unPrecio
+	^ArticuloComun createArticleWithCode: unCodigo precio: unPrecio descripcion: unaDescripcion.!
+
+crearArticuloFrioConCodigo: unCodigo descripcion: unaDescripcion precio: unPrecio peso: unPeso
+	^ArticuloFrio createArticleWithCode: unCodigo precio: unPrecio descripcion: unaDescripcion peso: unPeso.! !
+
+!FabricaArticulo categoriesForMethods!
+crearArticuloComunConCodigo:descripcion:precio:!public! !
+crearArticuloFrioConCodigo:descripcion:precio:peso:!public! !
 !
 
 "Binary Globals"!
