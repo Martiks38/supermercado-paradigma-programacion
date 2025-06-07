@@ -22,6 +22,7 @@ package globalAliases: (Set new
 
 package setPrerequisites: #(
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\Base\Dolphin Message Box'
 	'..\..\Documents\Dolphin Smalltalk 7\Core\Object Arts\Dolphin\MVP\Presenters\Prompters\Dolphin Prompter').
 
@@ -42,7 +43,7 @@ Object subclass: #ArticuloCantidad
 	classInstanceVariableNames: ''!
 
 Object subclass: #Distribuidor
-	instanceVariableNames: ''
+	instanceVariableNames: 'codigo nombre comision zonas'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -54,13 +55,13 @@ Object subclass: #Supermercado
 	classInstanceVariableNames: ''!
 
 Object subclass: #Usuario
-	instanceVariableNames: ''
-	classVariableNames: ''
+	instanceVariableNames: 'id nombre clave domicilio zona'
+	classVariableNames: 'Codigo'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
 Object subclass: #Venta
-	instanceVariableNames: ''
+	instanceVariableNames: 'codigo usuario distribuidor fecha articulosCantidad'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -72,8 +73,8 @@ Articulo subclass: #ArticuloComun
 	classInstanceVariableNames: ''!
 
 Articulo subclass: #ArticuloFrio
-	instanceVariableNames: ''
-	classVariableNames: ''
+	instanceVariableNames: 'peso'
+	classVariableNames: 'Porcentaje'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
@@ -125,10 +126,22 @@ ArticuloCantidad comment: ''!
 !ArticuloCantidad methodsFor!
 
 articulo
-    ^articulo! !
+    ^articulo!
+
+articulo: unArticulo
+    articulo := unArticulo.!
+
+cantidad
+    ^cantidad!
+
+cantidad: unaCantidad
+    cantidad := unaCantidad.! !
 
 !ArticuloCantidad categoriesForMethods!
 articulo!public! !
+articulo:!public! !
+cantidad!public! !
+cantidad:!public! !
 !
 
 Distribuidor guid: (GUID fromString: '{6b85e248-a5fc-4b97-af73-89c307541c80}')!
@@ -136,6 +149,37 @@ Distribuidor guid: (GUID fromString: '{6b85e248-a5fc-4b97-af73-89c307541c80}')!
 Distribuidor comment: ''!
 
 !Distribuidor categoriesForClass!Ejercicio1! !
+
+!Distribuidor methodsFor!
+
+cargarDatos
+|seguir zona|
+
+codigo := (Prompter prompt: 'Ingrese codigo') asNumber.
+nombre:= Prompter prompt: 'Ingrese nombre'.
+comision:= (Prompter prompt: 'Ingrese la comision de reparto') asNumber.
+seguir := true.
+[seguir] whileTrue:[
+    zona := (Prompter prompt:'Ingrese una zona ').
+    zonas add:zona.
+    seguir:= MessageBox confirm: 'Desea seguir agregando zonas?'
+]!
+
+codigo
+^codigo.!
+
+comision
+^comision.!
+
+zonas
+^zonas.! !
+
+!Distribuidor categoriesForMethods!
+cargarDatos!public! !
+codigo!public! !
+comision!public! !
+zonas!public! !
+!
 
 Supermercado guid: (GUID fromString: '{b9aff32e-95f1-40a7-bf17-dccd439002d7}')!
 
@@ -296,11 +340,108 @@ Usuario comment: ''!
 
 !Usuario categoriesForClass!Ejercicio1! !
 
+!Usuario methodsFor!
+
+cargarDatos
+
+clave:= Prompter prompt:'Ingresar clave'.
+nombre := Prompter prompt: 'Ingresar nombre' .
+domicilio:= Prompter prompt:'Ingrese domicilio'.
+zona := (Prompter prompt:'Ingrese zona') asNumber.
+id:= Codigo.
+Usuario aumentarCodigo.!
+
+domicilio
+    ^domicilio!
+
+id
+^id.!
+
+nombre
+    ^nombre!
+
+zona
+^zona.! !
+
+!Usuario categoriesForMethods!
+cargarDatos!public! !
+domicilio!public! !
+id!public! !
+nombre!public! !
+zona!public! !
+!
+
+!Usuario class methodsFor!
+
+aumentarCodigo
+Codigo := Codigo + 1.!
+
+inicializar
+Codigo:= 1.! !
+
+!Usuario class categoriesForMethods!
+aumentarCodigo!public! !
+inicializar!public! !
+!
+
 Venta guid: (GUID fromString: '{8402242d-9557-472d-865d-a61cdb90b116}')!
 
 Venta comment: ''!
 
 !Venta categoriesForClass!Ejercicio1! !
+
+!Venta methodsFor!
+
+agregarArticuloCantidad:unArticulo
+|item|
+"Crear ítem de venta con artículo y cantidad"
+item := ArticuloCantidad new.
+item articulo: unArticulo.
+item cantidad: (Prompter prompt: 'Ingrese la cantidad que desea agregar ') asNumber.
+articulosCantidad add: item.!
+
+calcularTotal
+|total art can pre|
+total := 0.
+articulosCantidad do: [:ac | 
+    art :=  ac articulo.
+    can:= ac cantidad.
+    pre := (art obtenerPrecio) * can.
+    total := total + pre.
+].
+^total.!
+
+cargarDatos
+codigo := Prompter prompt: 'Ingrese el codigo de la venta' asNumber.
+fecha := Date today.
+articulosCantidad := OrderedCollection new.!
+
+distribuidor
+    ^distribuidor!
+
+distribuidor: unDistribuidor
+    distribuidor := unDistribuidor!
+
+fecha
+^fecha.!
+
+usuario
+    ^usuario
+!
+
+usuario: unUsuario
+    usuario := unUsuario! !
+
+!Venta categoriesForMethods!
+agregarArticuloCantidad:!public! !
+calcularTotal!public! !
+cargarDatos!public! !
+distribuidor!public! !
+distribuidor:!public! !
+fecha!public! !
+usuario!public! !
+usuario:!public! !
+!
 
 ArticuloComun guid: (GUID fromString: '{6c504864-d306-4772-a6a8-e33c6d33afdf}')!
 
@@ -313,6 +454,30 @@ ArticuloFrio guid: (GUID fromString: '{89640616-2e78-4ddc-ab03-fa4165a29fec}')!
 ArticuloFrio comment: ''!
 
 !ArticuloFrio categoriesForClass!Ejercicio1! !
+
+!ArticuloFrio methodsFor!
+
+cargarDatos
+super cargarDatos.
+peso:= (Prompter prompt:'Ingrese el peso del articulo') asNumber.!
+
+obtenerPrecio
+^precio + (peso * Porcentaje)
+! !
+
+!ArticuloFrio categoriesForMethods!
+cargarDatos!public! !
+obtenerPrecio!public! !
+!
+
+!ArticuloFrio class methodsFor!
+
+inicializar
+Porcentaje := (Prompter prompt: 'Ingresar porcentaje') asNumber.! !
+
+!ArticuloFrio class categoriesForMethods!
+inicializar!public! !
+!
 
 "Binary Globals"!
 
